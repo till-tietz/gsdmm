@@ -1,0 +1,13 @@
+Package: gsdmm
+Type: Package
+Title: GSDMM Short Text Clustering via Dirichlet Mixture Models
+Version: 0.0.1
+Date: 2023-07-25
+Author: Till Tietz
+Maintainer: Till Tietz <ttietz2014@gmail.com>
+Description: This package implements a Dirichlet Mixture Model and accompanying 
+  Gibbs sampler for short text clustering proposed by Yin and Wang 2014. 
+License: MIT + file LICENSE
+Imports: Rcpp (>= 1.0.10)
+LinkingTo: Rcpp
+RoxygenNote: 7.1.2

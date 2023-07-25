@@ -1,0 +1,99 @@
+rm(list = ls())
+pacman::p_load(ggplot2, dplyr, magrittr)
+
+# R wrapper >> odes integer indexing of tokens
+gsdmm <- function(texts, n_iter, n_clust) {
+  
+  vocab <- unique(unlist(texts)) # vocabulary
+  vocab <- stats::setNames(1:length(vocab), vocab) # add integer indices to vocabulary
+  
+  V <- length(vocab) # num words in vocabulary
+  d <- lapply(texts, function(i) match(i, names(vocab))) # turn texts into sequences of integers
+  d <- lapply(d, function(i) i - 1) # index from 0
+  
+  
+  
+  
+  
+}
+
+
+Rcpp::sourceCpp("~/projects/verbatim/gsdmm.cpp")
+
+data <- data.table::fread("~/projects/verbatim/data_ksa.csv") %>%
+  tidyr::drop_na()
+
+clean_text <- function(text, language, lemmatize = FALSE, remove_stopwords = FALSE) {
+  
+  stopwords <- stopwords::stopwords(language, source = "snowball")
+  stopwords <- stopwords[!stopwords %in% c("hasn't","haven't","hadn't","doesn't","don't","didn't","won't","wouldn't","shan't",
+                                           "shouldn't","can't","cannot","couldn't","mustn't","not")]
+  print("clean text")
+  text <- text %>%
+    #lower case
+    tolower() %>%
+    #remove special characters and numbers
+    stringr::str_replace_all("[^[:alnum:][:space:]']", " ") %>%
+    stringr::str_replace_all("[[:digit:]]+", " ") %>%
+    #remove excess white space 
+    trimws(which = "both") %>%
+    stringr::str_replace_all("[\\s]+", " ") %>%
+    #tokeniz 
+    text2vec::word_tokenizer() 
+  
+  print("setting parallel architecture")
+  cores <- parallel::detectCores()
+  future::plan(future::multisession, workers = cores)
+  
+  if(remove_stopwords) {
+    print("removing stopwords")
+    text <- future.apply::future_lapply(text, function(i) {
+      i[!i %in% stopwords]
+    })
+  }
+  
+  if(lemmatize) {
+    print("lemmatizing")
+    text <- future.apply::future_lapply(text, function(i) {
+      paste(i, collapse = " ")
+    }) %>%
+      unlist() %>%
+      textstem::lemmatize_strings() %>%
+      text2vec::word_tokenizer() 
+  }
+  future:::ClusterRegistry("stop")
+  return(text)
+}
+
+
+data <- data[sample(1:nrow(data), 15000, replace = FALSE),]
+data$text_clean <- clean_text(data$V3, language = "english", 
+                              lemmatize = TRUE, remove_stopwords = TRUE) 
+
+
+
+texts <- data$text_clean
+keep <- !sapply(texts, function(i) length(i) == 0)
+texts <- texts[keep]
+
+vocab <- unique(unlist(texts)) # vocabulary
+vocab <- stats::setNames(1:length(vocab), vocab)  # add integer indices to vocabulary
+
+V <- length(vocab) # num words in vocabulary
+d <- lapply(texts, function(i) match(i, names(vocab))) # turn texts into sequences of integers
+d <- lapply(d, function(i) i - 1)
+
+
+clust <- gsdmm_gibbs(d = d, I = 100, K = 50, alpha = 0.1, beta = 0.5, V = V)
+
+table(clust)
+
+
+dat <- data[keep,]
+dat$clust <- clust
+
+dplyr::filter(dat, clust == 32)$V3
+
+
+
+
