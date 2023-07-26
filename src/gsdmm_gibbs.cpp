@@ -43,13 +43,9 @@ std::vector<int> gsdmm_gibbs(std::vector<std::vector<int>> d,
 
   // generate initial values ---------------------------------------------------
   // initialize equal probabilities for each cluster
-  std::vector<double> p;
-  p.reserve(K);
   double prob = 1.0 / static_cast<double>(K);
-  for(int i = 0; i < K; ++i) {
-    p.push_back(prob);
-  }
-  
+  std::vector<double> p(K, prob);
+
   // initialize multinomial 
   std::random_device rd;  
   std::mt19937 gen(rd()); 
@@ -77,35 +73,42 @@ std::vector<int> gsdmm_gibbs(std::vector<std::vector<int>> d,
   for(int doc = 0; doc < D; ++doc) {
     int z = distribution(gen); // sample cluster
     Z[doc] = z; // initial cluster
-    m_z[z] = m_z[z] + 1; // add doc to cluster 
-    n_z[z] = n_z[z] + d[doc].size(); // add number of words to cluster 
+    m_z[z]++; // add doc to cluster 
+    n_z[z] += d[doc].size(); // add number of words to cluster 
     
     // add occurences of word w to cluster
     for(std::size_t w = 0; w < d_r[doc].size(); ++w) {
       int word = d_r[doc][w];
-      n_z_w[word][z] = n_z_w[word][z] + n_d_w[doc][word];
+      n_z_w[word][z] += n_d_w[doc][word];
     }
+  }
+  
+  // pre compute constants 
+  // compute fraction 1 denominator
+  double denom_1 = std::log((D - 1 + K * alpha));
+  // compute fraction 1 numerator
+  std::vector<double> num_1_vec;
+  num_1_vec.reserve(K);
+  for(int k = 0; k < K; ++k) {
+    num_1_vec.push_back(std::log((m_z[k] + alpha)));
   }
   
   // run gibbs sampler ---------------------------------------------------------
   for(int i = 0; i < I; ++i) { // for I iterations 
-    int trans_i = 0;
     for(int doc = 0; doc < D; ++doc) { // for each document
       int z = Z[doc]; // get current cluster of document 
-      m_z[z] = m_z[z] - 1; // remove document from cluster
-      n_z[z] = n_z[z] - d[doc].size(); // remove total document word count from cluster
+      m_z[z]--; // remove document from cluster
+      n_z[z] -= d[doc].size(); // remove total document word count from cluster
       
       for(int w = 0; w < d_r[doc].size(); ++w) { // remove individual document word counts from cluster
         int word = d_r[doc][w];
-        n_z_w[word][z] -= - n_d_w[doc][word];
+        n_z_w[word][z] -= n_d_w[doc][word];
       }
       
       // sample new cluster
-      // compute fraction 1 denominator
-      double denom_1 = std::log((D - 1 + K * alpha));
       for(int k = 0; k < K; ++k) {
-        // compute fraction numerator
-        double num_1 = std::log((m_z[k] + alpha));
+        // get fraction 1 numerator
+        double num_1 = num_1_vec[k];
         // compute fraction 2 numerator
         double num_2 = 0.0;
         for(std::size_t w = 0; w < d_r[doc].size(); ++w) {
@@ -140,12 +143,12 @@ std::vector<int> gsdmm_gibbs(std::vector<std::vector<int>> d,
       z = distribution_d(gen);
       Z[doc] = z;
 
-      m_z[z] = m_z[z] + 1; // add doc to cluster 
-      n_z[z] = n_z[z] + d[doc].size(); // add number of words to cluster 
+      m_z[z]++; // add doc to cluster 
+      n_z[z] += d[doc].size(); // add number of words to cluster 
       // add occurences of word w to cluster
       for(int w = 0; w < d[doc].size(); ++w) {
         int word = d[doc][w];
-        n_z_w[word][z] = n_z_w[word][z] + 1;
+        n_z_w[word][z]++;
       }
     }
     double progress = static_cast<double>(i + 1) / I;
