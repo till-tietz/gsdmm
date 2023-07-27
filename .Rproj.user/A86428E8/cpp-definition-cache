@@ -1,6 +1,6 @@
 [
     {
-        "file": "/home/tilltietz/projects/gsdmm/src/gsdmm.cpp",
+        "file": "/home/tilltietz/projects/gsdmm/src/gsdmm_gibbs.cpp",
         "file_last_write": 1690294038.0,
         "definitions": [
             {
@@ -8,7 +8,7 @@
                 "kind": 6,
                 "parent_name": "",
                 "name": "updateProgressBar(double)",
-                "file": "/home/tilltietz/projects/gsdmm/src/gsdmm.cpp",
+                "file": "/home/tilltietz/projects/gsdmm/src/gsdmm_gibbs.cpp",
                 "line": 13,
                 "column": 6,
                 "hidden": false
@@ -18,7 +18,7 @@
                 "kind": 6,
                 "parent_name": "",
                 "name": "gsdmm_gibbs(std::vector<std::vector<int>>, int, int, double, double, int)",
-                "file": "/home/tilltietz/projects/gsdmm/src/gsdmm.cpp",
+                "file": "/home/tilltietz/projects/gsdmm/src/gsdmm_gibbs.cpp",
                 "line": 29,
                 "column": 18,
                 "hidden": false

@@ -33,3 +33,31 @@ You can install the development version of gsdmm from
 # install.packages("devtools")
 devtools::install_github("till-tietz/gsdmm")
 ```
+
+## Usage
+
+Here is a minimal working example. chatGPT kindly produced 10 example
+sentences; 3 on cats, 3 on rockets and 4 on giraffes.
+
+``` r
+# we lemmatize and tokenize creating a list of character vector representing each text
+text <- c(
+  "Rockets are amazing.",
+  "Witnessing a rocket in flight is a marvel of engineering.",
+  "We should take a rocket to Mars.",
+  "Rocket",
+  "Have you ever seen a cat?",
+  "Cats are fun.",
+  "Your cat seems sweet.",
+  "Cat"
+) |>
+  tolower()  |>
+  gsub(pattern = '[[:punct:] ]+', replacement = ' ') |>
+  textstem::lemmatize_strings() |>
+  text2vec::word_tokenizer() |>
+  lapply(function(i) i[!i %in% stopwords::stopwords()])
+
+
+gsdmm::gsdmm(texts = text, n_iter = 100, n_clust = 20, alpha = 0.1, beta = 0.2)
+#> [1] 18 15 18 18 19 19  8 19
+```
