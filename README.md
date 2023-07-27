@@ -36,8 +36,7 @@ devtools::install_github("till-tietz/gsdmm")
 
 ## Usage
 
-Here is a minimal working example. chatGPT kindly produced 10 example
-sentences; 3 on cats, 3 on rockets and 4 on giraffes.
+Here is a minimal working example.
 
 ``` r
 # we lemmatize and tokenize creating a list of character vector representing each text
@@ -59,5 +58,5 @@ text <- c(
 
 
 gsdmm::gsdmm(texts = text, n_iter = 100, n_clust = 20, alpha = 0.1, beta = 0.2)
-#> [1] 18 15 18 18 19 19  8 19
+#> [1]  4  4  6  6 18 18  2 18
 ```
