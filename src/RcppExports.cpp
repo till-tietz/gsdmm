@@ -11,8 +11,8 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // gsdmm_gibbs
-std::vector<int> gsdmm_gibbs(std::vector<std::vector<int>> d, int I, int K, double alpha, double beta, int V);
-RcppExport SEXP _gsdmm_gsdmm_gibbs(SEXP dSEXP, SEXP ISEXP, SEXP KSEXP, SEXP alphaSEXP, SEXP betaSEXP, SEXP VSEXP) {
+std::vector<int> gsdmm_gibbs(std::vector<std::vector<int>> d, int I, int K, double alpha, double beta, int V, bool progress);
+RcppExport SEXP _gsdmm_gsdmm_gibbs(SEXP dSEXP, SEXP ISEXP, SEXP KSEXP, SEXP alphaSEXP, SEXP betaSEXP, SEXP VSEXP, SEXP progressSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -22,13 +22,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
     Rcpp::traits::input_parameter< double >::type beta(betaSEXP);
     Rcpp::traits::input_parameter< int >::type V(VSEXP);
-    rcpp_result_gen = Rcpp::wrap(gsdmm_gibbs(d, I, K, alpha, beta, V));
+    Rcpp::traits::input_parameter< bool >::type progress(progressSEXP);
+    rcpp_result_gen = Rcpp::wrap(gsdmm_gibbs(d, I, K, alpha, beta, V, progress));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_gsdmm_gsdmm_gibbs", (DL_FUNC) &_gsdmm_gsdmm_gibbs, 6},
+    {"_gsdmm_gsdmm_gibbs", (DL_FUNC) &_gsdmm_gsdmm_gibbs, 7},
     {NULL, NULL, 0}
 };
 

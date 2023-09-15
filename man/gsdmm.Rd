@@ -4,7 +4,7 @@
 \alias{gsdmm}
 \title{fit Dirichlet Mixture Model}
 \usage{
-gsdmm(texts, n_iter, n_clust, alpha, beta)
+gsdmm(texts, n_iter, n_clust, alpha, beta, progress = TRUE)
 }
 \arguments{
 \item{texts}{a List of character vectors}
@@ -16,6 +16,8 @@ gsdmm(texts, n_iter, n_clust, alpha, beta)
 \item{alpha}{double governing the probability of assigning a text to a currently empty cluster (larger alpha means higher probability).}
 
 \item{beta}{double governing the tradeoff between cluster size and fit. Smaller betas make clustering more sensitive to congruence between cluster-word and document-word distributions while larger betas make it more sensitive to cluster size.}
+
+\item{progress}{logical indicating whether to print progress bar.}
 }
 \value{
 an integer vector of clusters
