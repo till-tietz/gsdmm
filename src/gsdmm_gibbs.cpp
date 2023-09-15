@@ -48,8 +48,8 @@ std::vector<int> gsdmm_gibbs(std::vector<std::vector<int>> d,
   std::vector<double> p(K, prob);
 
   // initialize multinomial
-  std::random_device rd;
-  std::mt19937 gen(rd());
+  unsigned int seed = floor((unif_rand() * 100000));
+  std::mt19937 gen(seed);
   std::discrete_distribution<> distribution(p.begin(),p.end());
 
 
