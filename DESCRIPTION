@@ -1,7 +1,7 @@
 Package: gsdmm
 Type: Package
 Title: GSDMM Short Text Clustering via Dirichlet Mixture Models
-Version: 0.0.1
+Version: 0.0.2
 Date: 2023-07-25
 Author: Till Tietz
 Maintainer: Till Tietz <ttietz2014@gmail.com>
@@ -10,7 +10,7 @@ Description: This package implements a Dirichlet Mixture Model and accompanying
 License: MIT + file LICENSE
 Imports:
   fastmatch,
-  stats
+  Matrix
 LinkingTo: Rcpp
 RoxygenNote: 7.2.3
 Encoding: UTF-8

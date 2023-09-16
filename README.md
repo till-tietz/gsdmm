@@ -50,13 +50,33 @@ text <- c(
   "Your cat seems sweet.",
   "Cat"
 ) |>
-  tolower()  |>
-  gsub(pattern = '[[:punct:] ]+', replacement = ' ') |>
+  tolower() |>
+  gsub(pattern = "[[:punct:] ]+", replacement = " ") |>
   textstem::lemmatize_strings() |>
   text2vec::word_tokenizer() |>
   lapply(function(i) i[!i %in% stopwords::stopwords()])
 
+set.seed(42)
 
-gsdmm::gsdmm(texts = text, n_iter = 100, n_clust = 20, alpha = 0.1, beta = 0.2)
-#> [1]  4  4  6  6 18 18  2 18
+gsdmm::gsdmm(texts = text, n_iter = 100, n_clust = 20, alpha = 0.1, beta = 0.2, progress = FALSE)
+#> $cluster
+#> [1] 16  5 14 16  4 16  2 16
+#> 
+#> $distribution
+#> 14 x 5 sparse Matrix of class "dgCMatrix"
+#>          5 14 16 4 2
+#> rocket   1  1  2 . .
+#> amaze    .  .  1 . .
+#> witness  1  .  . . .
+#> flight   1  .  . . .
+#> marvel   1  .  . . .
+#> engineer 1  .  . . .
+#> take     .  1  . . .
+#> mar      .  1  . . .
+#> ever     .  .  . 1 .
+#> see      .  .  . 1 .
+#> cat      .  .  2 1 1
+#> fun      .  .  1 . .
+#> seem     .  .  . . 1
+#> sweet    .  .  . . 1
 ```

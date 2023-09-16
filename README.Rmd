@@ -11,6 +11,7 @@ knitr::opts_chunk$set(
   fig.path = "man/figures/README-",
   out.width = "100%"
 )
+pkgload::load_all()
 ```
 
 # gsdmm
@@ -54,14 +55,14 @@ text <- c(
   "Your cat seems sweet.",
   "Cat"
 ) |>
-  tolower()  |>
-  gsub(pattern = '[[:punct:] ]+', replacement = ' ') |>
+  tolower() |>
+  gsub(pattern = "[[:punct:] ]+", replacement = " ") |>
   textstem::lemmatize_strings() |>
   text2vec::word_tokenizer() |>
   lapply(function(i) i[!i %in% stopwords::stopwords()])
 
+set.seed(42)
 
-gsdmm::gsdmm(texts = text, n_iter = 100, n_clust = 20, alpha = 0.1, beta = 0.2)
-
+gsdmm::gsdmm(texts = text, n_iter = 100, n_clust = 20, alpha = 0.1, beta = 0.2, progress = FALSE)
 ```
 

@@ -11,7 +11,7 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // gsdmm_gibbs
-std::vector<int> gsdmm_gibbs(std::vector<std::vector<int>> d, int I, int K, double alpha, double beta, int V, bool progress);
+Rcpp::List gsdmm_gibbs(std::vector<std::vector<int>> d, int I, int K, double alpha, double beta, int V, bool progress);
 RcppExport SEXP _gsdmm_gsdmm_gibbs(SEXP dSEXP, SEXP ISEXP, SEXP KSEXP, SEXP alphaSEXP, SEXP betaSEXP, SEXP VSEXP, SEXP progressSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;

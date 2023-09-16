@@ -4,10 +4,9 @@
 #include <vector>
 #include <unordered_map>
 #include <cmath>
-#include <iomanip>
-#include <chrono>
-#include <thread>
-using namespace Rcpp;
+// #include <iomanip>
+// #include <chrono>
+// #include <thread>
 
 // helper progress bar function
 void updateProgressBar(double progress) {
@@ -26,7 +25,7 @@ void updateProgressBar(double progress) {
 
 // gsdmm gibbs sampler
 // [[Rcpp::export]]
-std::vector<int> gsdmm_gibbs(std::vector<std::vector<int>> d,
+Rcpp::List gsdmm_gibbs(std::vector<std::vector<int>> d,
                              int I,
                              int K,
                              double alpha,
@@ -96,6 +95,8 @@ std::vector<int> gsdmm_gibbs(std::vector<std::vector<int>> d,
 
   // run gibbs sampler ---------------------------------------------------------
   for(int i = 0; i < I; ++i) { // for I iterations
+    if (i % 200 == 0) Rcpp::checkUserInterrupt();
+
     for(int doc = 0; doc < D; ++doc) { // for each document
       int z = Z[doc]; // get current cluster of document
       m_z[z]--; // remove document from cluster
@@ -160,5 +161,27 @@ std::vector<int> gsdmm_gibbs(std::vector<std::vector<int>> d,
   if (progress) {
     Rcpp::Rcout << std::endl;
   }
-  return Z;
+
+
+  std::vector<int> d_doc;
+  std::vector<int> d_tok;
+  std::vector<int> d_val;
+  for(std::size_t i = 0; i < n_z_w.size(); i++) {
+    for(std::size_t j = 0; j < n_z_w[i].size(); j++) {
+      if (n_z_w[i][j] != 0) {
+        d_doc.push_back(i);
+        d_tok.push_back(j);
+        d_val.push_back(n_z_w[i][j]);
+      }
+    }
+  }
+
+  return Rcpp::List::create(
+    Rcpp::Named("cluster") = Rcpp::wrap(Z),
+    Rcpp::Named("distribution") = Rcpp::DataFrame::create(
+      Rcpp::Named("doc") = Rcpp::wrap(d_doc),
+      Rcpp::Named("tok") = Rcpp::wrap(d_tok),
+      Rcpp::Named("value") = Rcpp::wrap(d_val)
+    )
+  );
 }
