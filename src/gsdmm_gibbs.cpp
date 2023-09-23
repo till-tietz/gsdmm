@@ -4,9 +4,7 @@
 #include <vector>
 #include <unordered_map>
 #include <cmath>
-// #include <iomanip>
-// #include <chrono>
-// #include <thread>
+
 
 // helper progress bar function
 void updateProgressBar(double progress) {
@@ -25,19 +23,20 @@ void updateProgressBar(double progress) {
 
 // gsdmm gibbs sampler
 // [[Rcpp::export]]
-Rcpp::List gsdmm_gibbs(std::vector<std::vector<int>> d,
-                             int I,
-                             int K,
-                             double alpha,
-                             double beta,
-                             int V,
-                             bool progress
-                             ) {
+Rcpp::List gsdmm_gibbs(
+    std::vector<std::vector<int>> d,
+    int I,
+    int K,
+    double alpha,
+    double beta,
+    int V,
+    bool progress
+) {
 
   int D = d.size();
-  std::vector<int> Z(D,0);
-  std::vector<int> m_z(K,0); // number of documents per cluster
-  std::vector<int> n_z(K,0); // number of words per cluster
+  std::vector<int> Z(D, 0);
+  std::vector<int> m_z(K, 0); // number of documents per cluster
+  std::vector<int> n_z(K, 0); // number of words per cluster
   std::vector<std::vector<int>> n_z_w(V, std::vector<int>(K, 0)); // number of occurrences of word w per cluster
 
 
@@ -49,7 +48,7 @@ Rcpp::List gsdmm_gibbs(std::vector<std::vector<int>> d,
   // initialize multinomial
   unsigned int seed = floor((unif_rand() * 100000));
   std::mt19937 gen(seed);
-  std::discrete_distribution<> distribution(p.begin(),p.end());
+  std::discrete_distribution<> distribution(p.begin(), p.end());
 
 
   // keep only unique words in each document
@@ -94,15 +93,16 @@ Rcpp::List gsdmm_gibbs(std::vector<std::vector<int>> d,
   }
 
   // run gibbs sampler ---------------------------------------------------------
+  int cluster_count = K;
   for(int i = 0; i < I; ++i) { // for I iterations
-    if (i % 200 == 0) Rcpp::checkUserInterrupt();
+    if (i % 20 == 0) Rcpp::checkUserInterrupt();
 
     for(int doc = 0; doc < D; ++doc) { // for each document
       int z = Z[doc]; // get current cluster of document
       m_z[z]--; // remove document from cluster
       n_z[z] -= d[doc].size(); // remove total document word count from cluster
 
-      for(int w = 0; w < d_r[doc].size(); ++w) { // remove individual document word counts from cluster
+      for(std::size_t w = 0; w < d_r[doc].size(); ++w) { // remove individual document word counts from cluster
         int word = d_r[doc][w];
         n_z_w[word][z] -= n_d_w[doc][word];
       }
@@ -122,7 +122,7 @@ Rcpp::List gsdmm_gibbs(std::vector<std::vector<int>> d,
 
         // compute fraction 2 denominator
         double denom_2 = 0.0;
-        for(int j = 0; j < d[doc].size(); ++j) {
+        for(std::size_t j = 0; j < d[doc].size(); ++j) {
           denom_2 += std::log((n_z[k] + V * beta + j));
         }
 
@@ -135,12 +135,11 @@ Rcpp::List gsdmm_gibbs(std::vector<std::vector<int>> d,
       for(int j = 0; j < K; ++j) {
         psum += p[j];
       }
-
       for(int j = 0; j < K; ++j) {
         p[j] = p[j] / psum;
       }
 
-      //sample new cluster
+      // sample new cluster
       std::discrete_distribution<> distribution_d(p.begin(),p.end());
       z = distribution_d(gen);
       Z[doc] = z;
@@ -148,14 +147,26 @@ Rcpp::List gsdmm_gibbs(std::vector<std::vector<int>> d,
       m_z[z]++; // add doc to cluster
       n_z[z] += d[doc].size(); // add number of words to cluster
       // add occurences of word w to cluster
-      for(int w = 0; w < d[doc].size(); ++w) {
+      for(std::size_t w = 0; w < d[doc].size(); ++w) {
         int word = d[doc][w];
         n_z_w[word][z]++;
       }
     }
+
     if (progress) {
       double progress = static_cast<double>(i + 1) / I;
       updateProgressBar(progress);
+    }
+    if (i > 25) {
+      int cluster_count_new = 0;
+      for(const auto& v: m_z) {
+        if (v != 0) cluster_count_new++;
+      }
+      if (cluster_count_new == cluster_count) {
+        if (progress) updateProgressBar(1);
+        break;
+      }
+      cluster_count = cluster_count_new;
     }
   }
   if (progress) {
