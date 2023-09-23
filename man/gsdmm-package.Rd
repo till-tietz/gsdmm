@@ -8,3 +8,12 @@
 \description{
 This package implements a Dirichlet Mixture Model and accompanying Gibbs sampler for short text clustering proposed by Yin and Wang 2014.
 }
+\author{
+\strong{Maintainer}: Till Tietz \email{ttietz2014@gmail.com}
+
+Other contributors:
+\itemize{
+  \item Akiru Kato [contributor]
+}
+
+}

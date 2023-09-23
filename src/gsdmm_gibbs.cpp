@@ -1,10 +1,10 @@
-#include <Rcpp.h>
+#include <RcppArmadillo.h>
+#include <RcppThread.h>
 #include <iostream>
 #include <random>
 #include <vector>
 #include <unordered_map>
 #include <cmath>
-
 
 // helper progress bar function
 void updateProgressBar(double progress) {
@@ -20,7 +20,6 @@ void updateProgressBar(double progress) {
   Rcpp::Rcout.flush();
 }
 
-
 // gsdmm gibbs sampler
 // [[Rcpp::export]]
 Rcpp::List gsdmm_gibbs(
@@ -32,48 +31,40 @@ Rcpp::List gsdmm_gibbs(
     int V,
     bool progress
 ) {
-
   int D = d.size();
-  std::vector<int> Z(D, 0);
-  std::vector<int> m_z(K, 0); // number of documents per cluster
-  std::vector<int> n_z(K, 0); // number of words per cluster
+  arma::vec Z(D, arma::fill::zeros);
+  arma::vec m_z(K, arma::fill::zeros); // number of documents per cluster
+  arma::vec n_z(K, arma::fill::zeros); // number of words per cluster
   std::vector<std::vector<int>> n_z_w(V, std::vector<int>(K, 0)); // number of occurrences of word w per cluster
-
 
   // generate initial values ---------------------------------------------------
   // initialize equal probabilities for each cluster
-  double prob = 1.0 / static_cast<double>(K);
-  std::vector<double> p(K, prob);
+  std::vector<double> p(K, (1.0 / static_cast<double>(K)));
 
   // initialize multinomial
   unsigned int seed = floor((unif_rand() * 100000));
   std::mt19937 gen(seed);
   std::discrete_distribution<> distribution(p.begin(), p.end());
 
-
-  // keep only unique words in each document
   std::vector<std::vector<int>> d_r(D);
-  for(int doc = 0; doc < D; ++doc) {
+  std::vector<std::unordered_map<int, int>> n_d_w(D); // word counts per document
+  RcppThread::parallelFor(0, D, [&](int doc) {
+    for(std::size_t w = 0; w < d[doc].size(); ++w) {
+      n_d_w[doc][d[doc][w]]++;
+    }
+    // keep only unique words in each document
     std::vector<int> w_d = d[doc];
     std::sort(w_d.begin(), w_d.end());
     w_d.erase(std::unique(w_d.begin(), w_d.end()), w_d.end()); // keep unique words
     d_r[doc] = w_d;
-  }
-
-  // word counts per document
-  std::vector<std::unordered_map<int, int>> n_d_w(D);
-  for(int doc = 0; doc < D; ++doc) {
-    for(std::size_t w = 0; w < d[doc].size(); ++w) {
-      n_d_w[doc][d[doc][w]]++;
-    }
-  }
+  });
 
   // initialize values
   for(int doc = 0; doc < D; ++doc) {
     int z = distribution(gen); // sample cluster
-    Z[doc] = z; // initial cluster
-    m_z[z]++; // add doc to cluster
-    n_z[z] += d[doc].size(); // add number of words to cluster
+    Z(doc) = z; // initial cluster
+    m_z(z)++; // add doc to cluster
+    n_z(z) += d[doc].size(); // add number of words to cluster
 
     // add occurences of word w to cluster
     for(std::size_t w = 0; w < d_r[doc].size(); ++w) {
@@ -86,31 +77,26 @@ Rcpp::List gsdmm_gibbs(
   // compute fraction 1 denominator
   double denom_1 = std::log((D - 1 + K * alpha));
   // compute fraction 1 numerator
-  std::vector<double> num_1_vec;
-  num_1_vec.reserve(K);
-  for(int k = 0; k < K; ++k) {
-    num_1_vec.push_back(std::log((m_z[k] + alpha)));
-  }
+  arma::vec num_1_vec = arma::log((m_z + alpha));
 
   // run gibbs sampler ---------------------------------------------------------
   int cluster_count = K;
   for(int i = 0; i < I; ++i) { // for I iterations
-    if (i % 20 == 0) Rcpp::checkUserInterrupt();
+    if (i % 20 == 0) RcppThread::checkUserInterrupt();
 
     for(int doc = 0; doc < D; ++doc) { // for each document
-      int z = Z[doc]; // get current cluster of document
-      m_z[z]--; // remove document from cluster
-      n_z[z] -= d[doc].size(); // remove total document word count from cluster
+      int z = Z(doc); // get current cluster of document
+      m_z(z)--; // remove document from cluster
+      n_z(z) -= d[doc].size(); // remove total document word count from cluster
 
       for(std::size_t w = 0; w < d_r[doc].size(); ++w) { // remove individual document word counts from cluster
         int word = d_r[doc][w];
         n_z_w[word][z] -= n_d_w[doc][word];
       }
 
-      // sample new cluster
-      for(int k = 0; k < K; ++k) {
+      RcppThread::parallelFor(0, K, [&](int k) {
         // get fraction 1 numerator
-        double num_1 = num_1_vec[k];
+        double num_1 = num_1_vec(k);
         // compute fraction 2 numerator
         double num_2 = 0.0;
         for(std::size_t w = 0; w < d_r[doc].size(); ++w) {
@@ -119,16 +105,12 @@ Rcpp::List gsdmm_gibbs(
             num_2 += std::log((n_z_w[word][k] + beta + j));
           }
         }
-
         // compute fraction 2 denominator
-        double denom_2 = 0.0;
-        for(std::size_t j = 0; j < d[doc].size(); ++j) {
-          denom_2 += std::log((n_z[k] + V * beta + j));
-        }
+        double denom_2 = arma::sum(arma::log(n_z(k) + V * beta + arma::linspace(1, d[doc].size(), d[doc].size())));
 
         // compute p from eq 4
         p[k] = std::exp((num_1 - denom_1 + num_2 - denom_2));
-      }
+      });
 
       // normalize p
       double psum = 0.0;
@@ -140,12 +122,12 @@ Rcpp::List gsdmm_gibbs(
       }
 
       // sample new cluster
-      std::discrete_distribution<> distribution_d(p.begin(),p.end());
+      std::discrete_distribution<> distribution_d(p.begin(), p.end());
       z = distribution_d(gen);
-      Z[doc] = z;
+      Z(doc) = z;
 
-      m_z[z]++; // add doc to cluster
-      n_z[z] += d[doc].size(); // add number of words to cluster
+      m_z(z)++; // add doc to cluster
+      n_z(z) += d[doc].size(); // add number of words to cluster
       // add occurences of word w to cluster
       for(std::size_t w = 0; w < d[doc].size(); ++w) {
         int word = d[doc][w];
@@ -163,7 +145,7 @@ Rcpp::List gsdmm_gibbs(
         if (v != 0) cluster_count_new++;
       }
       if (cluster_count_new == cluster_count) {
-        if (progress) updateProgressBar(1);
+        if (progress) updateProgressBar(1.0);
         break;
       }
       cluster_count = cluster_count_new;
@@ -172,7 +154,6 @@ Rcpp::List gsdmm_gibbs(
   if (progress) {
     Rcpp::Rcout << std::endl;
   }
-
 
   std::vector<int> d_doc;
   std::vector<int> d_tok;
@@ -188,7 +169,7 @@ Rcpp::List gsdmm_gibbs(
   }
 
   return Rcpp::List::create(
-    Rcpp::Named("cluster") = Rcpp::wrap(Z),
+    Rcpp::Named("cluster") = Rcpp::wrap(arma::conv_to<std::vector<int>>::from(Z)),
     Rcpp::Named("distribution") = Rcpp::DataFrame::create(
       Rcpp::Named("doc") = Rcpp::wrap(d_doc),
       Rcpp::Named("tok") = Rcpp::wrap(d_tok),
