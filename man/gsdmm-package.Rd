@@ -3,7 +3,6 @@
 \docType{package}
 \name{gsdmm-package}
 \alias{gsdmm-package}
-\alias{_PACKAGE}
 \title{gsdmm: GSDMM Short Text Clustering via Dirichlet Mixture Models}
 \description{
 This package implements a Dirichlet Mixture Model and accompanying Gibbs sampler for short text clustering proposed by Yin and Wang 2014.
