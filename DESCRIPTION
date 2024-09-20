@@ -1,7 +1,7 @@
 Type: Package
 Package: gsdmm
 Title: GSDMM Short Text Clustering via Dirichlet Mixture Models
-Version: 0.0.5
+Version: 0.0.6
 Authors@R: c(
     person("Till", "Tietz", , "ttietz2014@gmail.com", role = c("aut", "cre")),
     person("Akiru", "Kato", role = "ctb")
@@ -14,7 +14,8 @@ License: MIT + file LICENSE
 Imports:
     fastmatch,
     Matrix,
-    Rcpp
+    Rcpp,
+    vctrs
 Suggests:
     testthat (>= 3.0.0)
 LinkingTo:

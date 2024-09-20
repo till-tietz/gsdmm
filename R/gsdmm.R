@@ -25,10 +25,15 @@ gsdmm <- function(texts,
                   alpha = 0.1,
                   beta = 0.1,
                   progress = TRUE) {
-  vocab <- unique(unlist(texts)) # vocabulary
+  tokens <- unlist(texts, use.names = FALSE)
+  vocab <- unique(tokens)
 
-  V <- length(vocab) # num words in vocabulary
-  d <- lapply(texts, function(i) fastmatch::fmatch(i, vocab) - 1) # turn texts into sequences of integers
+  # turn texts into sequences of integers.
+  # equivalent to `lapply(texts, \(i) match(i, vocab) - 1)`
+  d <- vctrs::vec_chop(
+    fastmatch::fmatch(tokens, vocab) - 1,
+    sizes = vctrs::list_sizes(texts)
+  )
 
   clusters <- gsdmm_gibbs(
     d = d,
@@ -36,7 +41,7 @@ gsdmm <- function(texts,
     K = n_clust,
     alpha = alpha,
     beta = beta,
-    V = V,
+    V = length(vocab), # num words in vocabulary
     progress = progress
   )
 
