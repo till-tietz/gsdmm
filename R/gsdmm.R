@@ -1,4 +1,5 @@
 #' @aliases gsdmm-package
+#' @import Rcpp
 #' @useDynLib gsdmm, .registration = TRUE
 "_PACKAGE"
 
