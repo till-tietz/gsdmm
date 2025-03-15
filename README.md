@@ -4,13 +4,9 @@
 # gsdmm
 
 <!-- badges: start -->
-
 [![gsdmm status
-badge](https://paithiov909.r-universe.dev/badges/gsdmm)](https://paithiov909.r-universe.dev/gsdmm)
+badge](https://till-tietz.r-universe.dev/badges/gsdmm)](https://till-tietz.r-universe.dev/gsdmm)
 <!-- badges: end -->
-
-> This repo is a fork from
-> [till-tietz/gsdmm](https://github.com/till-tietz/gsdmm).
 
 ------------------------------------------------------------------------
 
