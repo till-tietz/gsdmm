@@ -4,7 +4,15 @@
 # gsdmm
 
 <!-- badges: start -->
+
+[![gsdmm status
+badge](https://paithiov909.r-universe.dev/badges/gsdmm)](https://paithiov909.r-universe.dev/gsdmm)
 <!-- badges: end -->
+
+> This repo is a fork from
+> [till-tietz/gsdmm](https://github.com/till-tietz/gsdmm).
+
+------------------------------------------------------------------------
 
 `gsdmm` implements short text classification via Dirichlet Mixture
 Models proposed by [Yin and Wang
@@ -50,13 +58,33 @@ text <- c(
   "Your cat seems sweet.",
   "Cat"
 ) |>
-  tolower()  |>
-  gsub(pattern = '[[:punct:] ]+', replacement = ' ') |>
+  tolower() |>
+  gsub(pattern = "[[:punct:] ]+", replacement = " ") |>
   textstem::lemmatize_strings() |>
   text2vec::word_tokenizer() |>
   lapply(function(i) i[!i %in% stopwords::stopwords()])
 
+set.seed(42)
 
-gsdmm::gsdmm(texts = text, n_iter = 100, n_clust = 20, alpha = 0.1, beta = 0.2)
-#> [1]  4  4  6  6 18 18  2 18
+gsdmm::gsdmm(texts = text, n_iter = 100, n_clust = 20, alpha = 0.1, beta = 0.2, progress = FALSE)
+#> $cluster
+#> [1] 16  3 16 16 17  5  7  2
+#> 
+#> $distribution
+#> 14 x 6 sparse Matrix of class "dgCMatrix"
+#>          3 16 17 2 5 7
+#> rocket   1  3  . . . .
+#> amaze    .  1  . . . .
+#> witness  1  .  . . . .
+#> flight   1  .  . . . .
+#> marvel   1  .  . . . .
+#> engineer 1  .  . . . .
+#> take     .  1  . . . .
+#> mar      .  1  . . . .
+#> ever     .  .  1 . . .
+#> see      .  .  1 . . .
+#> cat      .  .  1 1 1 1
+#> fun      .  .  . . 1 .
+#> seem     .  .  . . . 1
+#> sweet    .  .  . . . 1
 ```
