@@ -1,7 +1,4 @@
-.Rproj.user/
-.Rhistory
-.RData
-.Ruserdata
-src/*.o
-src/*.so
-src/*.dll
+^.*\.Rproj$
+^\.Rproj\.user$
+^LICENSE\.md$
+^README\.Rmd$
