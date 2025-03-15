@@ -2,24 +2,39 @@
 % Please edit documentation in R/gsdmm.R
 \name{gsdmm}
 \alias{gsdmm}
-\title{fit Dirichlet Mixture Model}
+\title{Fit Dirichlet Mixture Model}
 \usage{
-gsdmm(texts, n_iter, n_clust, alpha, beta)
+gsdmm(
+  texts,
+  n_iter = 30L,
+  n_clust = 8L,
+  alpha = 0.1,
+  beta = 0.1,
+  progress = TRUE
+)
 }
 \arguments{
-\item{texts}{a List of character vectors}
+\item{texts}{a list of character vectors}
 
 \item{n_iter}{integer number of iterations to run gibbs sampler for}
 
-\item{n_clust}{integer upper bound on number of clusters. The returned number of cluster will be smaller or equal to n_clust}
+\item{n_clust}{integer upper bound on number of clusters.
+The returned number of cluster will be smaller or equal to n_clust}
 
-\item{alpha}{double governing the probability of assigning a text to a currently empty cluster (larger alpha means higher probability).}
+\item{alpha}{double governing the probability of assigning a text
+to a currently empty cluster (larger alpha means higher probability).}
 
-\item{beta}{double governing the tradeoff between cluster size and fit. Smaller betas make clustering more sensitive to congruence between cluster-word and document-word distributions while larger betas make it more sensitive to cluster size.}
+\item{beta}{double governing the tradeoff between cluster size and fit.
+Smaller betas make clustering more sensitive to congruence
+between cluster-word and document-word distributions
+while larger betas make it more sensitive to cluster size.}
+
+\item{progress}{logical indicating whether to print progress bar.}
 }
 \value{
-an integer vector of clusters
+a list that contains an integer vector of clusters
+and a word-cluster matrix.
 }
 \description{
-fit Dirichlet Mixture Model
+Fit Dirichlet Mixture Model
 }

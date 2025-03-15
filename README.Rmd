@@ -11,19 +11,25 @@ knitr::opts_chunk$set(
   fig.path = "man/figures/README-",
   out.width = "100%"
 )
+pkgload::load_all()
 ```
 
 # gsdmm
 
 <!-- badges: start -->
+[![gsdmm status badge](https://paithiov909.r-universe.dev/badges/gsdmm)](https://paithiov909.r-universe.dev/gsdmm)
 <!-- badges: end -->
 
-`gsdmm` implements short text classification via Dirichlet Mixture Models proposed by [Yin and Wang 2014](https://www.semanticscholar.org/paper/A-dirichlet-multinomial-mixture-model-based-for-Yin-Wang/d03ca28403da15e75bc3e90c21eab44031257e80?p2df). It provides a fast `c++` implementation and R interface for the Gibbs sampler described in the paper. Specifically, `gsdmm` implements the Likelihood function allowing for multiple occurrences of the same word in a given text (EQ4). 
+> This repo is a fork from [till-tietz/gsdmm](https://github.com/till-tietz/gsdmm).
+
+---
+
+`gsdmm` implements short text classification via Dirichlet Mixture Models proposed by [Yin and Wang 2014](https://www.semanticscholar.org/paper/A-dirichlet-multinomial-mixture-model-based-for-Yin-Wang/d03ca28403da15e75bc3e90c21eab44031257e80?p2df). It provides a fast `c++` implementation and R interface for the Gibbs sampler described in the paper. Specifically, `gsdmm` implements the Likelihood function allowing for multiple occurrences of the same word in a given text (EQ4).
 
 **Benefits:** \
 
-- very space and time efficient 
-- unlike LDA it requires only an upper bound on the number of clusters 
+- very space and time efficient
+- unlike LDA it requires only an upper bound on the number of clusters
 
 **Development:** \
 
@@ -38,9 +44,9 @@ You can install the development version of gsdmm from [GitHub](https://github.co
 devtools::install_github("till-tietz/gsdmm")
 ```
 
-## Usage 
+## Usage
 
-Here is a minimal working example. 
+Here is a minimal working example.
 
 ```{r, message = FALSE, warning = FALSE}
 # we lemmatize and tokenize creating a list of character vector representing each text
@@ -54,14 +60,13 @@ text <- c(
   "Your cat seems sweet.",
   "Cat"
 ) |>
-  tolower()  |>
-  gsub(pattern = '[[:punct:] ]+', replacement = ' ') |>
+  tolower() |>
+  gsub(pattern = "[[:punct:] ]+", replacement = " ") |>
   textstem::lemmatize_strings() |>
   text2vec::word_tokenizer() |>
   lapply(function(i) i[!i %in% stopwords::stopwords()])
 
+set.seed(42)
 
-gsdmm::gsdmm(texts = text, n_iter = 100, n_clust = 20, alpha = 0.1, beta = 0.2)
-
+gsdmm::gsdmm(texts = text, n_iter = 100, n_clust = 20, alpha = 0.1, beta = 0.2, progress = FALSE)
 ```
-

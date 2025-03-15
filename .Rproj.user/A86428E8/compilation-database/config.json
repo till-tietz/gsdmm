@@ -4,10 +4,11 @@
         "-I/usr/share/R/include",
         "-DNDEBUG",
         "-fpic",
-        "-ffile-prefix-map=/build/r-base-JhpCKt/r-base-4.3.0=.",
+        "-ffile-prefix-map=/build/r-base-6tgf7J/r-base-4.4.2=.",
         "-fstack-protector-strong",
         "-D_FORTIFY_SOURCE=2",
-        "-I/home/tilltietz/R/x86_64-pc-linux-gnu-library/4.3/Rcpp/include",
+        "-I/home/tilltietz/R/x86_64-pc-linux-gnu-library/4.4/Rcpp/include",
+        "-I/usr/lib/R/site-library/RcppArmadillo/include",
         "-DEIGEN_DONT_VECTORIZE",
         "-I/usr/lib/llvm-14/lib/clang/14.0.0/include",
         "-I/usr/include/c++/11",
@@ -18,10 +19,10 @@
         "-I/usr/include/x86_64-linux-gnu",
         "-I/usr/include"
     ],
-    "pch": "Rcpp",
+    "pch": "RcppArmadillo",
     "is_cpp": true,
-    "hash": "1690446995",
+    "hash": "17420518301742051830",
     "compiler": "3842177633958818519",
-    "rversion": "4.3.0",
+    "rversion": "4.4.2",
     "dbversion": 4
 }
