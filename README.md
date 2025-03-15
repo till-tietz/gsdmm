@@ -4,6 +4,7 @@
 # gsdmm
 
 <!-- badges: start -->
+
 [![gsdmm status
 badge](https://till-tietz.r-universe.dev/badges/gsdmm)](https://till-tietz.r-universe.dev/gsdmm)
 <!-- badges: end -->
@@ -62,25 +63,25 @@ text <- c(
 
 set.seed(42)
 
-gsdmm::gsdmm(texts = text, n_iter = 100, n_clust = 20, alpha = 0.1, beta = 0.2, progress = FALSE)
+gsdmm::gsdmm(texts = text, n_iter = 100, n_clust = 5, alpha = 0.1, beta = 0.01, progress = FALSE)
 #> $cluster
-#> [1] 16  3 16 16 17  5  7  2
+#> [1] 2 0 0 0 4 4 4 4
 #> 
 #> $distribution
-#> 14 x 6 sparse Matrix of class "dgCMatrix"
-#>          3 16 17 2 5 7
-#> rocket   1  3  . . . .
-#> amaze    .  1  . . . .
-#> witness  1  .  . . . .
-#> flight   1  .  . . . .
-#> marvel   1  .  . . . .
-#> engineer 1  .  . . . .
-#> take     .  1  . . . .
-#> mar      .  1  . . . .
-#> ever     .  .  1 . . .
-#> see      .  .  1 . . .
-#> cat      .  .  1 1 1 1
-#> fun      .  .  . . 1 .
-#> seem     .  .  . . . 1
-#> sweet    .  .  . . . 1
+#> 14 x 3 sparse Matrix of class "dgCMatrix"
+#>          0 2 4
+#> rocket   3 1 .
+#> amaze    . 1 .
+#> witness  1 . .
+#> flight   1 . .
+#> marvel   1 . .
+#> engineer 1 . .
+#> take     1 . .
+#> mar      1 . .
+#> ever     . . 1
+#> see      . . 1
+#> cat      . . 4
+#> fun      . . 1
+#> seem     . . 1
+#> sweet    . . 1
 ```

@@ -66,5 +66,5 @@ text <- c(
 
 set.seed(42)
 
-gsdmm::gsdmm(texts = text, n_iter = 100, n_clust = 20, alpha = 0.1, beta = 0.2, progress = FALSE)
+gsdmm::gsdmm(texts = text, n_iter = 100, n_clust = 5, alpha = 0.1, beta = 0.01, progress = FALSE)
 ```

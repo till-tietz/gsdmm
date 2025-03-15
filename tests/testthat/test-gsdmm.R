@@ -16,7 +16,7 @@ test_that("dry run", {
   )
   res <- text |>
     strsplit(" ", fixed = TRUE) |>
-    gsdmm(n_iter = 100, alpha = .2, beta = .01, progress = FALSE)
+    gsdmm::gsdmm(n_iter = 100, alpha = .2, beta = .01, progress = FALSE)
 
   expect_true((unique(res$cluster) |> length()) < 10)
   expect_true((unique(res$cluster) |> length()) > 3)
